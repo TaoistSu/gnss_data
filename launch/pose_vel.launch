@@ -1,0 +1,65 @@
+<!-- -->
+<launch>
+
+  <!-- nmea to pose -->
+  <arg name="plane" default="7"/>
+
+  <node pkg="gnss_localizer" type="nmea2tfpose" name="nmea2tfpose" output="log">
+    <param name="plane" value="$(arg plane)"/>
+    <!--param name="gnss_topic" value="/nmea_sentence"/-->
+  </node>
+
+
+
+  <!-- TF -->
+  <include file="$(env HOME)/.autoware/data/tf/tf.launch"/>
+
+
+  <!-- 创建/current_pose主题 -->
+ <node pkg="topic_tools" type="relay" name="pose_relay" output="log" args="/gnss_pose /current_pose"/>
+
+
+  <!-- 加载点  (仍然有问题)-->
+  <include file="$(env HOME)/2012_ws/src/gnss_data/launch/path_loader.launch"/>
+
+
+  <!-- lane_navi -->
+  <!--
+  <node pkg="lane_planner" type="lane_navi" name="lane_navi" />
+  -->
+
+  <!-- lane_rule -->
+  <node pkg="lane_planner" type="lane_rule" name="lane_rule" />
+
+  <!-- lane_stop -->
+  <node pkg="lane_planner" type="lane_stop" name="lane_stop" />
+
+  <!-- lane_select -->
+  <node pkg="lane_planner" type="lane_select" name="lane_select" />
+
+
+  <!-- Vehicle Contorl -->
+  <include file="$(find runtime_manager)/launch_files/vehicle_socket.launch"/>
+
+  <!-- obstacle_avoid -->
+  <include file="$(find waypoint_planner)/launch/astar_avoid.launch"/>
+
+  <!-- velocity_set -->
+  <include file="$(find waypoint_planner)/launch/velocity_set.launch"/>
+
+  <!-- pure_pursuit 其中lookahead_distance是前视距离，是下一个规划点目标点里现在位置点的最小距离-->
+  <node pkg="rostopic" type="rostopic" name="config_waypoint_follower_rostopic"
+        args="pub -l /config/waypoint_follower autoware_config_msgs/ConfigWaypointFollower
+        '{ header: auto, param_flag: 1, velocity: 5.0, lookahead_distance: 6.0, lookahead_ratio: 4.0, minimum_lookahead_distance: 6.0, displacement_threshold: 0.0, relative_angle_threshold: 0.0 }' "
+  />
+  <include file="$(find waypoint_follower)/launch/pure_pursuit.launch"/>
+
+  <!-- twist_filter -->
+  <include file="$(find waypoint_follower)/launch/twist_filter.launch"/>
+
+
+
+
+
+
+</launch>
