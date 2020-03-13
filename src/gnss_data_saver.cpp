@@ -4,6 +4,7 @@
 #include <fstream>
 #include <ros/ros.h>
 #include <math.h>
+#include <string>
 
 using namespace std;
 
@@ -21,9 +22,18 @@ void PoseCallback(const geometry_msgs::PoseStamped::ConstPtr& input)
 
 }
 
+
+template<typename T> string toString(const T& t){
+    ostringstream oss;  //创建一个格式化输出流
+    oss<<t;             //把值传递如流中
+    return oss.str();  
+}
+
+
+
 int main(int argc, char** argv)
 {
-
+	
 
   double x_saved=0,y_saved=0,z_saved=0,yaw_saved=0;
 
@@ -41,13 +51,15 @@ int main(int argc, char** argv)
   
   in.open("/home/light/2012_ws/src/gnss_data/csv/test.csv",ios::trunc); //ios::trunc表示在打开文件前将文件清空,由于是写入,文件不存在则创建
   in<<"x,y,z,yaw,velocity,change_flag"<<"\n";
+  in<<std::fixed; //保持数字，不变成科学技术法
+
 
   //ros::spin();
   while (ros::ok())
   {
     if(x!=0&&x_saved==0)  //记录第一个点
     {
-    	in<<x<<","<<y<<","<<z<<","<<yaw<<",2.0000,0";
+    	in<<x<<","<<y<<","<<z<<","<<yaw<<",40.0000,0";
 	x_saved = x;
         y_saved = y;
         z_saved = z;
@@ -56,16 +68,14 @@ int main(int argc, char** argv)
 
     if(sqrt((x-x_saved)*(x-x_saved)+(y-y_saved)*(y-y_saved))>2) //记录
     {
-    	in<<"\n"<<x<<","<<y<<","<<z<<","<<yaw<<",40.0000,0";
+
 	x_saved = x;
         y_saved = y;
         z_saved = z;
         yaw_saved = yaw;
+    	in<<"\n"<<x<<","<<y<<","<<z<<","<<yaw<<",40.0000,0";
 	ROS_INFO("Save data !----------------");
-	ROS_INFO("x: %f",x);
-	ROS_INFO("y: %f",y);
-	ROS_INFO("z: %f",z);
-	ROS_INFO("yaw: %f",yaw);
+
 
     }
 

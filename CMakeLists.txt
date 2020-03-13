@@ -207,18 +207,18 @@ include_directories(
 add_executable(gnss_data src/gnss_data.cpp)
 add_executable(gnss_data_with_bag src/gnss_data_with_bag.cpp)
 add_executable(gnss_data_saver src/gnss_data_saver.cpp)
-
+add_executable(gnss_data_read_csv src/gnss_data_read_csv.cpp)
 
 
 add_dependencies(gnss_data gnss_data_generate_messages_cpp)
 add_dependencies(gnss_data_with_bag gnss_data_generate_messages_cpp)
 add_dependencies(gnss_data_saver gnss_data_messages_cpp)
-
+add_dependencies(gnss_data_read_csv gnss_data_messages_cpp)
 
 target_link_libraries(gnss_data ${catkin_LIBRARIES})
 target_link_libraries(gnss_data_with_bag ${catkin_LIBRARIES})
 target_link_libraries(gnss_data_saver ${catkin_LIBRARIES})
-
+target_link_libraries(gnss_data_read_csv ${catkin_LIBRARIES})
 
 
 
